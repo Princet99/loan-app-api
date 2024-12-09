@@ -2,10 +2,10 @@ const express = require("express");
 const cors = require("cors");
 const mysql = require("mysql2");
 
-const app = express(); 
+const app = express();
 const PORT = 3000;
 
-app.use(cors()); 
+app.use(cors());
 
 // MySQL Connection Configuration
 const db = mysql.createConnection({
@@ -163,11 +163,12 @@ app.get("/my-loans/:userId", (req, res) => {
 
 // Start the Express Server
 app.listen(PORT, () => {
-  const serverUrl = process.env.DOMAIN || `http://localhost:${PORT}`; // Use DOMAIN environment variable if available
+  const serverUrl = process.env.DOMAIN || `http://localhost:${PORT}`; // Use DOMAIN environment variable
   console.log(`Server is running on ${serverUrl}`);
 });
 
-// Close the database connection when the server shuts down (optional)
+app.use(express.static("build"));
+
 process.on("SIGINT", () => {
   db.end(() => {
     console.log("MySQL connection closed.");
