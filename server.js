@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const mysql = require("mysql2");
+const path = require("path");
 
 const app = express();
 const PORT = 3000;
@@ -30,6 +31,7 @@ const DEFAULT_DATE = "2025-05-10"; // Set the default date
 // Route to fetch "My Loans" for a specific user
 app.get("/my-loans/:userId", (req, res) => {
   const userId = req.params.userId;
+  const clientDate = req.query.date || DEFAULT_DATE;
 
   // Query to fetch loans
   const loanQuery = `
@@ -59,22 +61,22 @@ app.get("/my-loans/:userId", (req, res) => {
       (SELECT scbalance
        FROM ScheduleTable sc2
        WHERE sc2.lnno = sc.lnno
-         AND sc2.scdate > '${DEFAULT_DATE}'
+         AND sc2.scdate > '${clientDate}'
        ORDER BY sc2.scdate ASC
        LIMIT 1) AS currentBalance,
       (
         SELECT scamount 
         FROM ScheduleTable sc2
         WHERE sc2.lnno = sc.lnno
-          AND sc2.scdate > '${DEFAULT_DATE}'
+          AND sc2.scdate > '${clientDate}'
         ORDER BY sc2.scdate ASC
         LIMIT 1
       ) +
-      SUM(CASE WHEN sc.scdate < '${DEFAULT_DATE}' THEN sc.scdue ELSE 0 END) AS amountDue,
+      SUM(CASE WHEN sc.scdate < '${clientDate}' THEN sc.scdue ELSE 0 END) AS amountDue,
       (SELECT scdate
        FROM ScheduleTable sc2
        WHERE sc2.lnno = sc.lnno
-         AND sc2.scdate > '${DEFAULT_DATE}'
+         AND sc2.scdate > '${clientDate}'
        ORDER BY sc2.scdate ASC
        LIMIT 1) AS dueDate
     FROM 
@@ -94,7 +96,7 @@ FROM
     PaymentTable
 WHERE 
     pmpayor = 'borrower'
-    AND pmdate <= '${DEFAULT_DATE}'
+    AND pmdate <= '${clientDate}'
 GROUP BY 
     lnno;
   `;
@@ -108,7 +110,7 @@ GROUP BY
     FROM 
       PaymentTable p
     WHERE 
-      p.pmdate <= '${DEFAULT_DATE}'                     
+      p.pmdate <= '${clientDate}'                     
     ORDER BY 
       p.pmdate DESC                                      
     LIMIT 4;
@@ -122,7 +124,7 @@ GROUP BY
 FROM 
     ScheduleTable s
 WHERE 
-    s.scdate <= '${DEFAULT_DATE}' AND s.scpaid IS NOT NULL
+    s.scdate <= '${clientDate}' AND s.scpaid IS NOT NULL
 ORDER BY 
     s.scdate DESC
 LIMIT 4;
@@ -213,6 +215,15 @@ LIMIT 4;
 });
 
 app.use(express.static("build"));
+
+app.get("/loan", (req, res) => {
+  res.sendFile(path.join(__dirname, "build", "index.html"));
+});
+
+// Catch-all for React Router subroutes
+app.get("/loan/*", (req, res) => {
+  res.sendFile(path.join(__dirname, "build", "index.html"));
+});
 
 // Start Express Server
 app.listen(PORT, () => {
