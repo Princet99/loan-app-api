@@ -1,5 +1,9 @@
 {
+<<<<<<< HEAD
   "name" : "server",
+=======
+  "name": "server",
+>>>>>>> d3a3759 (This is updated working Model)
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
