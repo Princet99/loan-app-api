@@ -216,9 +216,7 @@ LIMIT 4;
 
 app.use(express.static("build"));
 
-
-
-// Start Express Server
+// Start Expresss Server
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
