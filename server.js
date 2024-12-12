@@ -216,14 +216,7 @@ LIMIT 4;
 
 app.use(express.static("build"));
 
-app.get("/loan", (req, res) => {
-  res.sendFile(path.join(__dirname, "build", "index.html"));
-});
 
-// Catch-all for React Router subroutes
-app.get("/loan/*", (req, res) => {
-  res.sendFile(path.join(__dirname, "build", "index.html"));
-});
 
 // Start Express Server
 app.listen(PORT, () => {
